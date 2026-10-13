@@ -5,7 +5,7 @@ import type { ActividadRHA, HabitoRHA, RegistroRHA } from "../habitos";
 import type { Fuentes } from "./fuentes";
 
 /** Datos inventados para la demo (solo en desarrollo). `fallar` simula un módulo caído. */
-export function fuentesDeMuestra(fallar: { finanzas?: boolean; entrenamiento?: boolean; habitos?: boolean } = {}): Fuentes {
+export function fuentesDeMuestra(fallar: { finanzas?: boolean; entrenamiento?: boolean; habitos?: boolean; estudios?: boolean } = {}): Fuentes {
   return {
     async finanzas(hoy) {
       await new Promise((r) => setTimeout(r, 300));
@@ -149,6 +149,44 @@ export function fuentesDeMuestra(fallar: { finanzas?: boolean; entrenamiento?: b
       }
       registros.push({ habitoId: "h2", fecha: hoy, estado: "completado" });
       return { actividades, habitos, registros, pausas: [], categorias };
+    },
+
+    async estudios() {
+      await new Promise((r) => setTimeout(r, 340));
+      if (fallar.estudios) throw new Error("demo: CIA caída");
+      const hoy = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Argentina/Buenos_Aires" }).format(new Date());
+      const materias = [
+        { id: "aed", nombre: "AED", color: "#0a84ff" },
+        { id: "iso", nombre: "ISO", color: "#ff9f0a" },
+        { id: "aga", nombre: "AGA", color: "#5e5ce6" },
+        { id: "fis", nombre: "Física", color: "#34c759" },
+      ];
+      const ex = (id: string, materiaId: string, nombre: string, dias: number, tipo: "parcial" | "tp" | "recuperatorio" = "parcial", provisoria = false) => ({
+        id,
+        materiaId,
+        nombre,
+        tipo,
+        fecha: sumarDias(hoy, dias),
+        fechaProvisoria: provisoria,
+        estado: "pendiente" as const,
+        avisos: [7, 3, 1],
+      });
+      const examenes = [
+        ex("e0", "iso", "Entrega del TP final", -5, "tp"),
+        ex("e1", "aed", "Parcial 4", 4),
+        ex("e2", "aga", "TP (exposición)", 6, "tp"),
+        ex("e3", "iso", "Parcial 2", 15),
+        ex("e4", "fis", "Parcial 2", 24),
+        ex("e5", "aga", "Recuperatorio", 24, "recuperatorio"),
+      ];
+      const temas = [
+        ...["terminado", "terminado", "en_curso", "pendiente", "pendiente"].map((estado) => ({
+          examenId: "e1",
+          estado: estado as "pendiente" | "en_curso" | "terminado",
+        })),
+        ...["pendiente", "pendiente", "en_curso"].map((estado) => ({ examenId: "e3", estado: estado as "pendiente" | "en_curso" | "terminado" })),
+      ];
+      return { materias, examenes, temas };
     },
   };
 }

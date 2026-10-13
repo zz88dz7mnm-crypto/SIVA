@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { resumenDeCIA, type ExamenCIA } from "./estudios";
 import { resumenDeRHA, textoDuracion, type ActividadRHA, type HabitoRHA, type RegistroRHA } from "./habitos";
 import { formatoVolumen, nombreDeDia, resumenDeSemana, semanaDelPlan, type SerieGym, type SesionGym } from "./entrenamiento";
 import {
@@ -241,5 +242,51 @@ describe("hábitos y agenda, con las definiciones de RHA", () => {
     const r = resumenDeRHA({ actividades: [], habitos: [habito()], registros: [reg("2026-10-09"), reg("2026-10-12")], pausas: [] }, hoy);
     expect(r.rachas).toEqual([{ nombre: "Estudiar", valor: 2, unidad: "días" }]);
     expect(textoDuracion(195)).toBe("3 h 15 min");
+  });
+});
+
+describe("estudios, con las definiciones de CIA", () => {
+  const ex = (id: string, fecha: string, cambios: Partial<ExamenCIA> = {}): ExamenCIA => ({
+    id,
+    materiaId: "m",
+    nombre: id,
+    tipo: "parcial",
+    fecha,
+    fechaProvisoria: false,
+    estado: "pendiente",
+    avisos: [7, 3, 1],
+    ...cambios,
+  });
+  const hoy = "2026-10-13";
+
+  it("separa próximos, sin marcar, avisos y choques", () => {
+    const r = resumenDeCIA(
+      {
+        examenes: [
+          ex("pasado", "2026-10-08"),
+          ex("p4", "2026-10-16"),
+          ex("lejos", "2026-11-06"),
+          ex("recu", "2026-11-06", { tipo: "recuperatorio" }),
+          ex("cuest", "2026-11-06", { tipo: "cuestionario" }),
+          ex("hoy", hoy),
+        ],
+        temas: [
+          { examenId: "p4", estado: "terminado" },
+          { examenId: "p4", estado: "en_curso" },
+          { examenId: "p4", estado: "pendiente" },
+        ],
+      },
+      hoy,
+    );
+    expect(r.proximos.map((e) => e.id)).toEqual(["hoy", "p4", "cuest", "lejos", "recu"]);
+    expect(r.semana).toBe(2);
+    expect(r.sinMarcar.map((e) => e.id)).toEqual(["pasado"]);
+    expect(r.avisos.map((e) => [e.id, e.dias])).toEqual([
+      ["hoy", 0],
+      ["p4", 3],
+    ]);
+    expect(r.choques.map(([a, b]) => [a.id, b.id])).toEqual([["lejos", "recu"]]);
+    expect(r.temas).toEqual({ terminados: 1, enCurso: 1, total: 3 });
+    expect(r.proximos.find((e) => e.id === "p4")).toMatchObject({ terminados: 1, enCurso: 1, total: 3 });
   });
 });

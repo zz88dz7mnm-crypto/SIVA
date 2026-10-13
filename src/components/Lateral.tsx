@@ -12,7 +12,7 @@ function hora(ms: number) {
   return formato({ hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(ms);
 }
 
-type Estados = { fia: EstadoFuente<unknown>; gym: EstadoFuente<unknown>; rha: EstadoFuente<unknown> };
+type Estados = { fia: EstadoFuente<unknown>; gym: EstadoFuente<unknown>; rha: EstadoFuente<unknown>; cia: EstadoFuente<unknown> };
 
 /** Cómo está cada módulo, en palabras: nunca solo con un color. */
 export function estadoDeModulo(estado: EstadoFuente<unknown> | undefined, existe: boolean): { texto: string; tono: "ok" | "aviso" | "error" | "nada" } {

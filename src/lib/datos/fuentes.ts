@@ -1,6 +1,7 @@
 import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
 import type { SerieGym, SesionGym } from "../entrenamiento";
 import { lunesDe, sumarDias } from "../fechas";
+import type { ExamenCIA, MateriaCIA, TemaCIA } from "../estudios";
 import type { ActividadRHA, CategoriaRHA, HabitoRHA, PausaRHA, RegistroRHA } from "../habitos";
 import { aCentavos, ES_ENTRADA, rangoDelMes, type Categoria, type Frasco, type Movimiento, type TipoMovimiento } from "../finanzas";
 
@@ -18,10 +19,13 @@ export type DatosHabitos = {
   categorias: CategoriaRHA[];
 };
 
+export type DatosEstudios = { materias: MateriaCIA[]; examenes: ExamenCIA[]; temas: TemaCIA[] };
+
 export interface Fuentes {
   finanzas(hoy: string): Promise<DatosFinanzas>;
   entrenamiento(): Promise<DatosEntrenamiento>;
   habitos(hoy: string): Promise<DatosHabitos>;
+  estudios(): Promise<DatosEstudios>;
 }
 
 /** Por qué no se pudo leer un módulo. "sin_tablas": el módulo todavía no preparó su base. */
@@ -191,6 +195,45 @@ export function fuentesSupabase(db: SupabaseClient): Fuentes {
         registros: registros.map((r) => ({ habitoId: r.habito_id, fecha: r.fecha, estado: r.estado })),
         pausas: pausas.map((p) => ({ habitoId: p.habito_id, desde: p.desde, hasta: p.hasta })),
         categorias,
+      };
+    },
+
+    async estudios() {
+      const [materias, examenes, temas] = await Promise.all([
+        todas<MateriaCIA>((a, b) => db.from("cia_materias").select("id, nombre, color").order("orden").order("id").range(a, b)),
+        todas<{
+          id: string;
+          materia_id: string;
+          nombre: string;
+          tipo: ExamenCIA["tipo"];
+          fecha: string;
+          fecha_provisoria: boolean;
+          estado: ExamenCIA["estado"];
+          avisos: number[];
+        }>((a, b) =>
+          db
+            .from("cia_examenes")
+            .select("id, materia_id, nombre, tipo, fecha, fecha_provisoria, estado, avisos")
+            .eq("estado", "pendiente")
+            .order("fecha")
+            .order("id")
+            .range(a, b),
+        ),
+        todas<{ examen_id: string; estado: TemaCIA["estado"] }>((a, b) => db.from("cia_temas").select("examen_id, estado").order("id").range(a, b)),
+      ]);
+      return {
+        materias,
+        examenes: examenes.map((e) => ({
+          id: e.id,
+          materiaId: e.materia_id,
+          nombre: e.nombre,
+          tipo: e.tipo,
+          fecha: e.fecha,
+          fechaProvisoria: e.fecha_provisoria,
+          estado: e.estado,
+          avisos: e.avisos,
+        })),
+        temas: temas.map((t) => ({ examenId: t.examen_id, estado: t.estado })),
       };
     },
   };
