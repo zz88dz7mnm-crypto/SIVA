@@ -12,7 +12,7 @@ function hora(ms: number) {
   return formato({ hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(ms);
 }
 
-type Estados = { fia: EstadoFuente<unknown>; gym: EstadoFuente<unknown> };
+type Estados = { fia: EstadoFuente<unknown>; gym: EstadoFuente<unknown>; rha: EstadoFuente<unknown> };
 
 /** Cómo está cada módulo, en palabras: nunca solo con un color. */
 export function estadoDeModulo(estado: EstadoFuente<unknown> | undefined, existe: boolean): { texto: string; tono: "ok" | "aviso" | "error" | "nada" } {
@@ -75,7 +75,7 @@ export function Lateral({
         <p className="mb-2 text-[12px] font-semibold tracking-[0.08em] text-tinta-tenue uppercase">Módulos</p>
         <ul className="sin-barra -mx-4 flex gap-2 overflow-x-auto px-4 lg:mx-0 lg:grid lg:gap-0.5 lg:overflow-visible lg:px-0">
           {MODULOS.map((m) => {
-            const { texto, tono } = estadoDeModulo(m.clave === "fia" || m.clave === "gym" ? estados[m.clave] : undefined, m.existe);
+            const { texto, tono } = estadoDeModulo(m.clave in estados ? estados[m.clave as keyof Estados] : undefined, m.existe);
             const contenido = (
               <>
                 <span className={cx("size-2 shrink-0 rounded-full", PUNTO[tono])} aria-hidden="true" />

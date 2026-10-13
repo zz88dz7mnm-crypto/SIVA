@@ -7,7 +7,7 @@ import { ErrorDeFuente } from "./datos/fuentes";
 export const MODULOS = [
   { clave: "fia", nombre: "FIA", tema: "Finanzas", url: process.env.NEXT_PUBLIC_URL_FIA || null, existe: true },
   { clave: "gym", nombre: "GYM", tema: "Entrenamiento", url: process.env.NEXT_PUBLIC_URL_GYM || null, existe: true },
-  { clave: "rha", nombre: "RHA", tema: "Hábitos y agenda", url: null, existe: false },
+  { clave: "rha", nombre: "RHA", tema: "Hábitos y agenda", url: process.env.NEXT_PUBLIC_URL_RHA || null, existe: true },
   { clave: "cia", nombre: "CIA", tema: "Estudios", url: null, existe: false },
   { clave: "aica", nombre: "AICA", tema: "Asistente", url: null, existe: false },
 ] as const;
