@@ -1,0 +1,184 @@
+@import "tailwindcss";
+
+/*
+ * Estilo: el mismo de FIA (tipografía del sistema, superficies de vidrio sobre luz suave)
+ * con el azul de SIVA y un color por módulo. Modo oscuro automático desde las 18:00: lo decide data-tema en <html>.
+ */
+@theme {
+  --color-fondo: #f2f3f7;
+  --color-tinta: #1d1d1f;
+  --color-tinta-suave: #5f5f66;
+  --color-tinta-tenue: #6a6a72;
+  --color-linea: rgb(60 60 67 / 0.14);
+  --color-acento: #0066cc;
+  --color-acento-oscuro: #0055aa;
+  --color-sobre-acento: #ffffff;
+  --color-acento-suave: rgb(0 102 204 / 0.1);
+  --color-verde: #117a45;
+  --color-rojo: #c62a22;
+  --color-campo: rgb(255 255 255 / 0.85);
+  --color-grafico: #0066cc;
+  --color-fia: #117a45;
+  --color-gym: #c2410c;
+  --color-grilla: rgb(60 60 67 / 0.1);
+
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", "Segoe UI", Roboto, sans-serif;
+
+  --animate-entrar: entrar 240ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-aparecer: aparecer 320ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* Variables propias del vidrio y la luz de fondo, que cambian con el tema. */
+:root {
+  --vidrio-arriba: rgb(255 255 255 / 0.76);
+  --vidrio-abajo: rgb(255 255 255 / 0.56);
+  --vidrio-borde: rgb(255 255 255 / 0.72);
+  --vidrio-filo: rgb(255 255 255 / 0.9);
+  --vidrio-sombra: rgb(20 30 70 / 0.2);
+  --leve: rgb(255 255 255 / 0.72);
+  --leve-borde: rgb(255 255 255 / 0.7);
+  --luz-1: rgb(170 200 255 / 0.45);
+  --luz-2: rgb(170 236 208 / 0.4);
+  --luz-3: rgb(210 194 255 / 0.45);
+  color-scheme: light;
+}
+
+:root[data-tema="oscuro"] {
+  --color-fondo: #0d0f14;
+  --color-tinta: #f2f2f5;
+  --color-tinta-suave: #b4b4bd;
+  --color-tinta-tenue: #8d8d97;
+  --color-linea: rgb(235 235 245 / 0.14);
+  --color-acento: #2997ff;
+  --color-acento-oscuro: #0a84ff;
+  --color-sobre-acento: #04111f;
+  --color-acento-suave: rgb(41 151 255 / 0.15);
+  --color-verde: #4ade80;
+  --color-rojo: #f87171;
+  --color-campo: rgb(255 255 255 / 0.07);
+  --color-grafico: #2997ff;
+  --color-fia: #4ade80;
+  --color-gym: #fb923c;
+  --color-grilla: rgb(235 235 245 / 0.1);
+
+  --vidrio-arriba: rgb(40 44 56 / 0.72);
+  --vidrio-abajo: rgb(28 31 40 / 0.6);
+  --vidrio-borde: rgb(255 255 255 / 0.09);
+  --vidrio-filo: rgb(255 255 255 / 0.08);
+  --vidrio-sombra: rgb(0 0 0 / 0.5);
+  --leve: rgb(255 255 255 / 0.06);
+  --leve-borde: rgb(255 255 255 / 0.08);
+  --luz-1: rgb(40 90 200 / 0.26);
+  --luz-2: rgb(20 120 100 / 0.2);
+  --luz-3: rgb(90 70 180 / 0.24);
+  color-scheme: dark;
+}
+
+@keyframes entrar {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+}
+
+html,
+body {
+  min-height: 100%;
+  overscroll-behavior: none;
+}
+
+body {
+  background: var(--color-fondo);
+  color: var(--color-tinta);
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* La luz de fondo: es lo que el vidrio deja ver y desenfoca. Va en una capa fija (iOS no fija fondos). */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(to bottom, var(--color-fondo), transparent 9rem), radial-gradient(52rem 34rem at 6% 12%, var(--luz-1), transparent 62%),
+    radial-gradient(44rem 30rem at 104% 24%, var(--luz-2), transparent 60%), radial-gradient(56rem 38rem at 62% 112%, var(--luz-3), transparent 62%),
+    var(--color-fondo);
+}
+
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--color-acento);
+    outline-offset: 2px;
+  }
+  /* Sin flechitas en los campos numéricos: se escribe con el teclado del celular. */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+}
+
+/* Vidrio: translúcido, con el fondo desenfocado detrás, un filo de luz arriba y sombra suave. */
+.cristal {
+  background: linear-gradient(180deg, var(--vidrio-arriba), var(--vidrio-abajo));
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  backdrop-filter: blur(22px) saturate(180%);
+  border: 1px solid var(--vidrio-borde);
+  box-shadow:
+    inset 0 1px 0 var(--vidrio-filo),
+    0 0 0 0.5px rgb(20 24 40 / 0.06),
+    0 14px 34px -14px var(--vidrio-sombra);
+}
+
+/* Variante liviana, sin desenfoque: para lo que se repite mucho al desplazar. */
+.cristal-leve {
+  background: var(--leve);
+  border: 1px solid var(--leve-borde);
+  box-shadow: 0 1px 2px rgb(20 30 70 / 0.06);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .cristal {
+    background: var(--color-fondo);
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .cristal,
+  .cristal-leve {
+    background: var(--color-fondo);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* Cifras que tienen que alinearse en columna. */
+.cifras {
+  font-variant-numeric: tabular-nums;
+}
+
+.sin-barra {
+  scrollbar-width: none;
+}
+.sin-barra::-webkit-scrollbar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
