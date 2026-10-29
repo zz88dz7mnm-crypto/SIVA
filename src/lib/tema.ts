@@ -9,7 +9,7 @@ export type { Preferencia };
 function leer(): Preferencia {
   try {
     const p = localStorage.getItem(CLAVE);
-    return p === "claro" || p === "oscuro" ? p : "auto";
+    return p === "claro" ? "claro" : "auto";
   } catch {
     return "auto";
   }
@@ -18,7 +18,7 @@ function leer(): Preferencia {
 function aplicar(preferencia: Preferencia) {
   const tema = temaPara(preferencia, horaEn());
   document.documentElement.dataset.tema = tema;
-  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", tema === "oscuro" ? "#0d0f14" : "#f2f3f7");
+  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", tema === "oscuro" ? "#090b0f" : "#f2f3f7");
 }
 
 export function useTema(): [Preferencia, (p: Preferencia) => void] {

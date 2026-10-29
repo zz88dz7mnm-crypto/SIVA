@@ -52,9 +52,8 @@ function PieMovil({ actualizando, onActualizar, salir }: { actualizando: boolean
       <Segmentos<Preferencia>
         etiqueta="Tema"
         opciones={[
-          ["auto", "Automático"],
+          ["auto", "Oscuro"],
           ["claro", "Claro"],
-          ["oscuro", "Oscuro"],
         ]}
         valor={tema}
         onCambiar={setTema}

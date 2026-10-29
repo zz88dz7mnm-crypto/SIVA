@@ -111,9 +111,8 @@ export function Lateral({
         <Segmentos<Preferencia>
           etiqueta="Tema"
           opciones={[
-            ["auto", "Auto"],
+            ["auto", "Oscuro"],
             ["claro", "Claro"],
-            ["oscuro", "Oscuro"],
           ]}
           valor={tema}
           onCambiar={setTema}

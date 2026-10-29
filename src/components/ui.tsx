@@ -8,7 +8,7 @@ export function cx(...clases: (string | false | null | undefined)[]) {
 
 export function Tarjeta({ className, children, ...resto }: React.HTMLAttributes<HTMLElement> & { as?: "section" | "div" }) {
   return (
-    <section className={cx("cristal rounded-[26px] p-5", className)} {...resto}>
+    <section className={cx("cristal rounded-[20px] p-5", className)} {...resto}>
       {children}
     </section>
   );
@@ -99,7 +99,7 @@ export function Confirmar({
         e.preventDefault();
         onCancelar();
       }}
-      className="cristal m-auto w-[min(92vw,24rem)] rounded-[28px] p-6 text-tinta backdrop:bg-black/40 backdrop:backdrop-blur-sm"
+      className="cristal m-auto w-[min(92vw,24rem)] rounded-[22px] p-6 text-tinta backdrop:bg-black/40 backdrop:backdrop-blur-sm"
     >
       <h2 className="text-[20px] font-bold">{titulo}</h2>
       <div className="mt-2 text-[15px] leading-snug text-tinta-suave">{texto}</div>

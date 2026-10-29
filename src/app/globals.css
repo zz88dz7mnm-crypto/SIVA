@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 /*
- * Estilo: el mismo de las otras apps (tipografía del sistema, superficies de vidrio sobre luz suave)
- * con el azul de SIVA y un color por módulo. Modo oscuro automático desde las 18:00: lo decide data-tema en <html>.
+ * Estilo: tipografía del sistema y superficies de vidrio. Tema predeterminado: vidrio oscuro (abajo);
+ * el claro queda como opción. Lo decide data-tema en <html>.
  */
 @theme {
   --color-fondo: #f2f3f7;
@@ -42,34 +42,50 @@
   color-scheme: light;
 }
 
+/*
+ * Vidrio oscuro (estilo "Liquid Glass"): paneles de vidrio esmerilado sobre un fondo ambiental cálido,
+ * paleta casi negra y un solo acento azul. Es el tema predeterminado; "claro" queda como opción.
+ */
 :root[data-tema="oscuro"] {
-  --color-fondo: #0d0f14;
-  --color-tinta: #f2f2f5;
-  --color-tinta-suave: #b4b4bd;
-  --color-tinta-tenue: #8d8d97;
-  --color-linea: rgb(235 235 245 / 0.14);
-  --color-acento: #2997ff;
-  --color-acento-oscuro: #0a84ff;
-  --color-sobre-acento: #04111f;
-  --color-acento-suave: rgb(41 151 255 / 0.15);
+  --color-fondo: #090b0f;
+  --color-tinta: #f4f7fb;
+  --color-tinta-suave: #a4b0c0;
+  --color-tinta-tenue: #8592a3;
+  --color-linea: rgb(220 232 245 / 0.12);
+  --color-acento: #67a9ff;
+  --color-acento-oscuro: #4d94f5;
+  --color-sobre-acento: #06101c;
+  --color-acento-suave: rgb(103 169 255 / 0.16);
   --color-verde: #4ade80;
   --color-rojo: #f87171;
-  --color-campo: rgb(255 255 255 / 0.07);
-  --color-grafico: #2997ff;
-  --color-rha: #818cf8;
-  --color-grilla: rgb(235 235 245 / 0.1);
+  --color-campo: rgb(255 255 255 / 0.06);
+  --color-grafico: #67a9ff;
+  --color-agua: #5fd4c8;
+  --color-rha: #67a9ff;
+  --color-grilla: rgb(220 232 245 / 0.08);
 
-  --vidrio-arriba: rgb(40 44 56 / 0.72);
-  --vidrio-abajo: rgb(28 31 40 / 0.6);
-  --vidrio-borde: rgb(255 255 255 / 0.09);
-  --vidrio-filo: rgb(255 255 255 / 0.08);
+  /* Material: tinte #263342 → #151C25, borde frío muy tenue y un filo de luz arriba. */
+  --vidrio-arriba: rgb(38 51 66 / 0.6);
+  --vidrio-abajo: rgb(21 28 37 / 0.56);
+  --vidrio-borde: rgb(220 232 245 / 0.16);
+  --vidrio-filo: rgb(255 255 255 / 0.1);
   --vidrio-sombra: rgb(0 0 0 / 0.5);
-  --leve: rgb(255 255 255 / 0.06);
-  --leve-borde: rgb(255 255 255 / 0.08);
-  --luz-1: rgb(40 90 200 / 0.26);
-  --luz-2: rgb(20 120 100 / 0.2);
-  --luz-3: rgb(90 70 180 / 0.24);
+  --leve: rgb(38 51 66 / 0.42);
+  --leve-borde: rgb(220 232 245 / 0.1);
+  /* Luz ambiente: lámpara cálida arriba a la izquierda, reflejo ámbar a la derecha, frío abajo. */
+  --luz-1: rgb(255 150 70 / 0.3);
+  --luz-2: rgb(205 110 60 / 0.2);
+  --luz-3: rgb(70 110 190 / 0.22);
   color-scheme: dark;
+}
+
+/* El fondo oscuro tiene textura (grano fino) y viñeta: le da al vidrio algo para desenfocar. */
+:root[data-tema="oscuro"] body::before {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E"),
+    radial-gradient(120% 90% at 50% 40%, transparent 55%, rgb(0 0 0 / 0.55)), radial-gradient(46rem 32rem at 8% 6%, var(--luz-1), transparent 65%),
+    radial-gradient(40rem 30rem at 100% 30%, var(--luz-2), transparent 62%), radial-gradient(60rem 36rem at 55% 115%, var(--luz-3), transparent 62%),
+    linear-gradient(180deg, #14110f 0%, #0c0d10 45%, var(--color-fondo) 100%);
 }
 
 @keyframes entrar {
@@ -129,20 +145,38 @@ body::before {
 /* Vidrio: translúcido, con el fondo desenfocado detrás, un filo de luz arriba y sombra suave. */
 .cristal {
   background: linear-gradient(180deg, var(--vidrio-arriba), var(--vidrio-abajo));
-  -webkit-backdrop-filter: blur(22px) saturate(180%);
-  backdrop-filter: blur(22px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(135%);
+  backdrop-filter: blur(20px) saturate(135%);
   border: 1px solid var(--vidrio-borde);
   box-shadow:
     inset 0 1px 0 var(--vidrio-filo),
-    0 0 0 0.5px rgb(20 24 40 / 0.06),
-    0 14px 34px -14px var(--vidrio-sombra);
+    0 12px 32px -10px var(--vidrio-sombra);
 }
 
 /* Variante liviana, sin desenfoque: para lo que se repite mucho al desplazar. */
 .cristal-leve {
   background: var(--leve);
   border: 1px solid var(--leve-borde);
-  box-shadow: 0 1px 2px rgb(20 30 70 / 0.06);
+  box-shadow: inset 0 1px 0 var(--vidrio-filo);
+}
+
+/* Al pasar el cursor o enfocar, el borde se aclara un poco: respuesta sutil, sin destellos. */
+:is(a, button).cristal,
+:is(a, button).cristal-leve {
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    transform 160ms ease;
+}
+@media (hover: hover) {
+  :is(a, button).cristal:hover,
+  :is(a, button).cristal-leve:hover {
+    border-color: rgb(220 232 245 / 0.28);
+  }
+}
+:is(a, button).cristal:active,
+:is(a, button).cristal-leve:active {
+  transform: scale(0.99);
 }
 
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {

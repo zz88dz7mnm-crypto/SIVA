@@ -77,9 +77,9 @@ function Aviso({ tono, children }: { tono: "aviso" | "error"; children: React.Re
 function Esqueleto() {
   return (
     <div className="grid animate-pulse grid-cols-1 gap-4 md:grid-cols-2" aria-busy="true" aria-label="Cargando">
-      <div className="h-40 rounded-[26px] bg-tinta/5" />
-      <div className="h-40 rounded-[26px] bg-tinta/5" />
-      <div className="h-56 rounded-[26px] bg-tinta/5 md:col-span-2" />
+      <div className="h-40 rounded-[20px] bg-tinta/5" />
+      <div className="h-40 rounded-[20px] bg-tinta/5" />
+      <div className="h-56 rounded-[20px] bg-tinta/5 md:col-span-2" />
     </div>
   );
 }
