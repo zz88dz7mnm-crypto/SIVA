@@ -5,6 +5,7 @@ import type { Fuentes } from "./fuentes";
 /** Datos inventados para la demo (solo en desarrollo). `fallar` simula un módulo caído. */
 export function fuentesDeMuestra(fallar: { habitos?: boolean } = {}): Fuentes {
   return {
+    fondo: async () => null,
     async habitos(hoy) {
       await new Promise((r) => setTimeout(r, 380));
       if (fallar.habitos) throw new Error("demo: RHA caída");

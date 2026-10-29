@@ -5,6 +5,7 @@ import type { Fuentes } from "@/lib/datos/fuentes";
 import { hoyEn } from "@/lib/fechas";
 import { useFuente } from "@/lib/modulos";
 import { useTema, type Preferencia } from "@/lib/tema";
+import { FondoPersonal } from "./FondoPersonal";
 import { BotonActualizar, Lateral } from "./Lateral";
 import { Segmentos } from "./ui";
 import { SeccionHabitos } from "./SeccionHabitos";
@@ -31,9 +32,21 @@ export function Tablero({ fuentes, salir }: { fuentes: Fuentes; salir?: () => vo
   const leerHabitos = useCallback(() => fuentes.habitos(hoy), [fuentes, hoy]);
   const habitos = useFuente(leerHabitos, version);
   const actualizando = habitos.cargando;
+  const [fondo, setFondo] = useState<string | null>(null);
+  useEffect(() => {
+    let vigente = true;
+    fuentes
+      .fondo()
+      .then((url) => vigente && setFondo(url))
+      .catch(() => {});
+    return () => {
+      vigente = false;
+    };
+  }, [fuentes, version]);
 
   return (
     <div className="mx-auto min-h-dvh max-w-[1400px] lg:grid lg:grid-cols-[300px_minmax(0,1fr)]">
+      <FondoPersonal url={fondo} />
       <Lateral ahora={ahora} estados={{ rha: habitos }} actualizando={actualizando} onActualizar={() => setVersion((v) => v + 1)} salir={salir} />
       <main className="grid min-w-0 grid-cols-1 gap-14 px-4 pt-6 pb-16 sm:px-8 lg:px-12 lg:pt-14">
         <SeccionHabitos estado={habitos} hoy={hoy} />

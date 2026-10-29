@@ -16,6 +16,8 @@ export type DatosHabitos = {
 
 export interface Fuentes {
   habitos(hoy: string): Promise<DatosHabitos>;
+  /** La imagen de fondo elegida en RHA, o null (fondo ambiental). */
+  fondo(): Promise<string | null>;
 }
 
 /** Por qué no se pudo leer un módulo. "sin_tablas": el módulo todavía no preparó su base. */
@@ -124,6 +126,12 @@ export function fuentesSupabase(db: SupabaseClient): Fuentes {
         pausas: pausas.map((p) => ({ habitoId: p.habito_id, desde: p.desde, hasta: p.hasta })),
         categorias,
       };
+    },
+
+    async fondo() {
+      // Con "*": si RHA todavía no tiene la columna, no hay fondo y listo.
+      const { data } = await db.from("rha_ajustes").select("*").limit(1).maybeSingle();
+      return (data?.fondo as string | null | undefined) ?? null;
     },
   };
 }

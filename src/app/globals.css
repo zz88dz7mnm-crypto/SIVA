@@ -39,6 +39,8 @@
   --luz-1: rgb(170 200 255 / 0.45);
   --luz-2: rgb(170 236 208 / 0.4);
   --luz-3: rgb(210 194 255 / 0.45);
+  /* Sobre la imagen de fondo del usuario (se elige en RHA). */
+  --velo-fondo: linear-gradient(rgb(242 243 247 / 0.55), rgb(242 243 247 / 0.55));
   color-scheme: light;
 }
 
@@ -72,6 +74,7 @@
   --vidrio-sombra: rgb(0 0 0 / 0.5);
   --leve: rgb(38 51 66 / 0.42);
   --leve-borde: rgb(220 232 245 / 0.1);
+  --velo-fondo: radial-gradient(120% 90% at 50% 40%, rgb(9 11 15 / 0.35), rgb(9 11 15 / 0.7));
   /* Luz ambiente: lámpara cálida arriba a la izquierda, reflejo ámbar a la derecha, frío abajo. */
   --luz-1: rgb(255 150 70 / 0.3);
   --luz-2: rgb(205 110 60 / 0.2);
