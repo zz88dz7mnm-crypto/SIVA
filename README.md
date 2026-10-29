@@ -28,10 +28,10 @@ npm test
 
 ## Puesta en marcha
 
-1. No necesita SQL propio: lee las tablas de RHA con la sesión del usuario (RLS).
+1. No necesita SQL propio: lee las tablas de RHA con la clave pública.
 2. **Vercel:** Add New → Project → importar este repo → Deploy.
 3. El enlace "Abrir RHA" sale de `NEXT_PUBLIC_URL_RHA` en `.env`. Si está vacía, el enlace no aparece.
-4. Se entra con la misma cuenta de RHA.
+4. No tiene usuario ni contraseña: abre directo. Cualquiera con la dirección puede verlo.
 
 ## Fuera de esta versión
 

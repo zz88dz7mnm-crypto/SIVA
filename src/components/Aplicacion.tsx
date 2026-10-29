@@ -5,11 +5,10 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/datos/cliente";
 import { fuentesSupabase, type Fuentes } from "@/lib/datos/fuentes";
 import { fuentesDeMuestra } from "@/lib/datos/muestra";
-import { Ingreso } from "./Ingreso";
 import { Logo } from "./Logo";
 import { Tablero } from "./Tablero";
 
-type Estado = { paso: "cargando" } | { paso: "sin_sesion" } | { paso: "lista"; clave: string; fuentes: Fuentes; salir?: () => void };
+type Estado = { paso: "cargando" } | { paso: "lista"; clave: string; fuentes: Fuentes };
 
 /** Solo en desarrollo: /demo deja esta marca (y qué módulo simular caído) y la app usa datos de muestra. */
 export const MARCA_DEMO = "siva-demo";
@@ -29,24 +28,13 @@ export function Aplicacion({ children }: { children?: React.ReactNode }) {
   const ruta = usePathname();
   const [estado, setEstado] = useState<Estado>({ paso: "cargando" });
 
+  // Sin usuario ni contraseña: abre directo. Lo de la demo solo se sabe en el navegador.
   useEffect(() => {
     const demo = modoDemo();
-    if (demo) {
-      // La marca de demo solo existe en el navegador: no se puede decidir antes de hidratar.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setEstado({ paso: "lista", clave: "demo", fuentes: fuentesDeMuestra(demo) });
-      return;
-    }
-    const db = supabase();
-    const { data } = db.auth.onAuthStateChange((_evento, sesion) => {
-      const usuarioId = sesion?.user.id;
-      setEstado((previo) => {
-        if (!usuarioId) return { paso: "sin_sesion" };
-        if (previo.paso === "lista" && previo.clave === usuarioId) return previo;
-        return { paso: "lista", clave: usuarioId, fuentes: fuentesSupabase(db), salir: () => void db.auth.signOut() };
-      });
-    });
-    return () => data.subscription.unsubscribe();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setEstado(
+      demo ? { paso: "lista", clave: "demo", fuentes: fuentesDeMuestra(demo) } : { paso: "lista", clave: "siva", fuentes: fuentesSupabase(supabase()) },
+    );
   }, []);
 
   if (ruta === "/demo") return children;
@@ -57,6 +45,5 @@ export function Aplicacion({ children }: { children?: React.ReactNode }) {
       </main>
     );
   }
-  if (estado.paso === "sin_sesion") return <Ingreso />;
-  return <Tablero key={estado.clave} fuentes={estado.fuentes} salir={estado.salir} />;
+  return <Tablero key={estado.clave} fuentes={estado.fuentes} />;
 }
