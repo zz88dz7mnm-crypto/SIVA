@@ -14,12 +14,12 @@ type Estado = { paso: "cargando" } | { paso: "sin_sesion" } | { paso: "lista"; c
 /** Solo en desarrollo: /demo deja esta marca (y qué módulo simular caído) y la app usa datos de muestra. */
 export const MARCA_DEMO = "siva-demo";
 
-function modoDemo(): { finanzas?: boolean; entrenamiento?: boolean; habitos?: boolean; estudios?: boolean } | null {
+function modoDemo(): { habitos?: boolean } | null {
   if (process.env.NODE_ENV === "production") return null;
   try {
     const marca = sessionStorage.getItem(MARCA_DEMO);
     if (marca === null) return null;
-    return { finanzas: marca.includes("fia"), entrenamiento: marca.includes("gym"), habitos: marca.includes("rha"), estudios: marca.includes("cia") };
+    return { habitos: marca.includes("rha") };
   } catch {
     return null;
   }

@@ -4,7 +4,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "SIVA",
-  description: "Tu día de un vistazo: finanzas, entrenamiento y lo que venga.",
+  description: "Tu día de un vistazo: hábitos, agenda y lo que venga.",
   appleWebApp: { capable: true, title: "SIVA", statusBarStyle: "default" },
 };
 

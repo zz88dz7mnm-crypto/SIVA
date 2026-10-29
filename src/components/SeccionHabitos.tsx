@@ -8,7 +8,7 @@ import { GraficoBarras } from "./Grafico";
 import { Cifra, Seccion } from "./Seccion";
 import { cx, Tarjeta, Vacio } from "./ui";
 
-const RHA = MODULOS[2];
+const RHA = MODULOS[0];
 const COLOR = "var(--color-rha)";
 const INICIALES = ["L", "M", "M", "J", "V", "S", "D"];
 const GRIS = "#8e8e93";

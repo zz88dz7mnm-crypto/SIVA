@@ -7,9 +7,6 @@ import { useFuente } from "@/lib/modulos";
 import { useTema, type Preferencia } from "@/lib/tema";
 import { BotonActualizar, Lateral } from "./Lateral";
 import { Segmentos } from "./ui";
-import { SeccionEntrenamiento } from "./SeccionEntrenamiento";
-import { SeccionFinanzas } from "./SeccionFinanzas";
-import { SeccionEstudios } from "./SeccionEstudios";
 import { SeccionHabitos } from "./SeccionHabitos";
 
 /** La hora de ahora, refrescada cada 15 segundos (alcanza para mostrar minutos). */
@@ -31,30 +28,15 @@ export function Tablero({ fuentes, salir }: { fuentes: Fuentes; salir?: () => vo
   const hoy = hoyEn(undefined, new Date(ahora));
   const [version, setVersion] = useState(0);
 
-  const leerFinanzas = useCallback(() => fuentes.finanzas(hoy), [fuentes, hoy]);
-  const leerEntrenamiento = useCallback(() => fuentes.entrenamiento(), [fuentes]);
-  const finanzas = useFuente(leerFinanzas, version);
-  const entrenamiento = useFuente(leerEntrenamiento, version);
   const leerHabitos = useCallback(() => fuentes.habitos(hoy), [fuentes, hoy]);
   const habitos = useFuente(leerHabitos, version);
-  const leerEstudios = useCallback(() => fuentes.estudios(), [fuentes]);
-  const estudios = useFuente(leerEstudios, version);
-  const actualizando = finanzas.cargando || entrenamiento.cargando || habitos.cargando || estudios.cargando;
+  const actualizando = habitos.cargando;
 
   return (
     <div className="mx-auto min-h-dvh max-w-[1400px] lg:grid lg:grid-cols-[300px_minmax(0,1fr)]">
-      <Lateral
-        ahora={ahora}
-        estados={{ fia: finanzas, gym: entrenamiento, rha: habitos, cia: estudios }}
-        actualizando={actualizando}
-        onActualizar={() => setVersion((v) => v + 1)}
-        salir={salir}
-      />
+      <Lateral ahora={ahora} estados={{ rha: habitos }} actualizando={actualizando} onActualizar={() => setVersion((v) => v + 1)} salir={salir} />
       <main className="grid min-w-0 grid-cols-1 gap-14 px-4 pt-6 pb-16 sm:px-8 lg:px-12 lg:pt-14">
-        <SeccionFinanzas estado={finanzas} hoy={hoy} />
-        <SeccionEntrenamiento estado={entrenamiento} hoy={hoy} />
         <SeccionHabitos estado={habitos} hoy={hoy} />
-        <SeccionEstudios estado={estudios} hoy={hoy} />
         <PieMovil actualizando={actualizando} onActualizar={() => setVersion((v) => v + 1)} salir={salir} />
       </main>
     </div>

@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "SIVA",
     short_name: "SIVA",
-    description: "Tu día de un vistazo: finanzas, entrenamiento y lo que venga.",
+    description: "Tu día de un vistazo: hábitos, agenda y lo que venga.",
     lang: "es-AR",
     start_url: "/",
     display: "standalone",

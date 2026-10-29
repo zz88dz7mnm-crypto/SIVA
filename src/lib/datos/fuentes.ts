@@ -1,16 +1,11 @@
 import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
-import type { SerieGym, SesionGym } from "../entrenamiento";
 import { lunesDe, sumarDias } from "../fechas";
-import type { ExamenCIA, MateriaCIA, TemaCIA } from "../estudios";
 import type { ActividadRHA, CategoriaRHA, HabitoRHA, PausaRHA, RegistroRHA } from "../habitos";
-import { aCentavos, ES_ENTRADA, rangoDelMes, type Categoria, type Frasco, type Movimiento, type TipoMovimiento } from "../finanzas";
 
 /**
- * SIVA solo lee. Cada módulo es dueño de sus datos (FIA de la plata, GYM de los entrenamientos):
+ * SIVA solo lee. Cada módulo es dueño de sus datos (RHA de la agenda y los hábitos):
  * acá no hay ni un insert ni un update.
  */
-export type DatosFinanzas = { movimientos: Movimiento[]; categorias: Categoria[]; frascos: Frasco[]; desde: string; hasta: string };
-export type DatosEntrenamiento = { inicioPlan: string | null; sesiones: SesionGym[]; series: SerieGym[] };
 export type DatosHabitos = {
   actividades: ActividadRHA[];
   habitos: HabitoRHA[];
@@ -19,13 +14,8 @@ export type DatosHabitos = {
   categorias: CategoriaRHA[];
 };
 
-export type DatosEstudios = { materias: MateriaCIA[]; examenes: ExamenCIA[]; temas: TemaCIA[] };
-
 export interface Fuentes {
-  finanzas(hoy: string): Promise<DatosFinanzas>;
-  entrenamiento(): Promise<DatosEntrenamiento>;
   habitos(hoy: string): Promise<DatosHabitos>;
-  estudios(): Promise<DatosEstudios>;
 }
 
 /** Por qué no se pudo leer un módulo. "sin_tablas": el módulo todavía no preparó su base. */
@@ -93,70 +83,8 @@ const aActividad = (f: FilaActividad): ActividadRHA => ({
   estado: f.estado,
 });
 
-type FilaMovimiento = { tipo: TipoMovimiento; importe: number | string; fecha: string; categoria_id: string | null };
-
 export function fuentesSupabase(db: SupabaseClient): Fuentes {
   return {
-    async finanzas(hoy) {
-      const { desde, hasta } = rangoDelMes(hoy);
-      // Mismo filtro que el panel de FIA: confirmados, sin movimientos entre cuentas propias.
-      const [filas, categorias, frascos, aportes, conFrasco] = await Promise.all([
-        todas<FilaMovimiento>((a, b) =>
-          db
-            .from("transacciones")
-            .select("tipo, importe, fecha, categoria_id")
-            .eq("estado", "confirmada")
-            .eq("es_interna", false)
-            .gte("fecha", desde)
-            .lte("fecha", hasta)
-            .order("fecha")
-            .order("id")
-            .range(a, b),
-        ),
-        todas<Categoria>((a, b) => db.from("categorias").select("id, nombre").order("id").range(a, b)),
-        todas<{ id: string; nombre: string }>((a, b) => db.from("frascos").select("id, nombre").order("creado_en").range(a, b)),
-        todas<{ frasco_id: string; importe: number | string }>((a, b) => db.from("aportes_frasco").select("frasco_id, importe").order("id").range(a, b)),
-        todas<{ frasco_id: string; importe: number | string; tipo: TipoMovimiento }>((a, b) =>
-          db.from("transacciones").select("frasco_id, importe, tipo").eq("estado", "confirmada").not("frasco_id", "is", null).order("id").range(a, b),
-        ),
-      ]);
-      const sumar = (lista: { frasco_id: string; importe: number | string }[], id: string) =>
-        lista.filter((f) => f.frasco_id === id).reduce((total, f) => total + aCentavos(f.importe), 0);
-      const salidas = conFrasco.filter((f) => !ES_ENTRADA[f.tipo]);
-      return {
-        desde,
-        hasta,
-        movimientos: filas.map((f) => ({ tipo: f.tipo, centavos: aCentavos(f.importe), fecha: f.fecha, categoriaId: f.categoria_id })),
-        categorias,
-        frascos: frascos.map((f) => ({ id: f.id, nombre: f.nombre, asignado: sumar(aportes, f.id), gastado: sumar(salidas, f.id) })),
-      };
-    },
-
-    async entrenamiento() {
-      const [ajustes, sesiones, series] = await Promise.all([
-        db.from("gym_ajustes").select("inicio_plan").maybeSingle(),
-        todas<SesionGym>((a, b) =>
-          db.from("gym_sesiones").select("id, dia, fecha, inicio, fin, estado").order("fecha", { ascending: false }).order("id").range(a, b),
-        ),
-        todas<{ sesion_id: string; ejercicio: string; ejercicio_nombre: string; kg: number | string | null; reps: number | null; hecha: boolean }>((a, b) =>
-          db.from("gym_series").select("sesion_id, ejercicio, ejercicio_nombre, kg, reps, hecha").order("id").range(a, b),
-        ),
-      ]);
-      const filaAjustes = exigir(ajustes);
-      return {
-        inicioPlan: filaAjustes?.inicio_plan ?? null,
-        sesiones,
-        series: series.map((s) => ({
-          sesionId: s.sesion_id,
-          ejercicio: s.ejercicio,
-          ejercicioNombre: s.ejercicio_nombre,
-          kg: s.kg === null ? null : Number(s.kg),
-          reps: s.reps,
-          hecha: s.hecha,
-        })),
-      };
-    },
-
     async habitos(hoy) {
       const lunes = lunesDe(hoy);
       // Lo de esta semana y los próximos 7 días, más las pendientes de antes (las vencidas).
@@ -195,45 +123,6 @@ export function fuentesSupabase(db: SupabaseClient): Fuentes {
         registros: registros.map((r) => ({ habitoId: r.habito_id, fecha: r.fecha, estado: r.estado })),
         pausas: pausas.map((p) => ({ habitoId: p.habito_id, desde: p.desde, hasta: p.hasta })),
         categorias,
-      };
-    },
-
-    async estudios() {
-      const [materias, examenes, temas] = await Promise.all([
-        todas<MateriaCIA>((a, b) => db.from("cia_materias").select("id, nombre, color").order("orden").order("id").range(a, b)),
-        todas<{
-          id: string;
-          materia_id: string;
-          nombre: string;
-          tipo: ExamenCIA["tipo"];
-          fecha: string;
-          fecha_provisoria: boolean;
-          estado: ExamenCIA["estado"];
-          avisos: number[];
-        }>((a, b) =>
-          db
-            .from("cia_examenes")
-            .select("id, materia_id, nombre, tipo, fecha, fecha_provisoria, estado, avisos")
-            .eq("estado", "pendiente")
-            .order("fecha")
-            .order("id")
-            .range(a, b),
-        ),
-        todas<{ examen_id: string; estado: TemaCIA["estado"] }>((a, b) => db.from("cia_temas").select("examen_id, estado").order("id").range(a, b)),
-      ]);
-      return {
-        materias,
-        examenes: examenes.map((e) => ({
-          id: e.id,
-          materiaId: e.materia_id,
-          nombre: e.nombre,
-          tipo: e.tipo,
-          fecha: e.fecha,
-          fechaProvisoria: e.fecha_provisoria,
-          estado: e.estado,
-          avisos: e.avisos,
-        })),
-        temas: temas.map((t) => ({ examenId: t.examen_id, estado: t.estado })),
       };
     },
   };

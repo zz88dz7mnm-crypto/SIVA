@@ -7,7 +7,7 @@ import { Logo } from "./Logo";
 const CAMPO =
   "h-12 w-full rounded-2xl border border-linea bg-campo px-4 text-[17px] text-tinta outline-none focus:border-acento focus:ring-2 focus:ring-acento/20";
 
-/** Pantalla de entrada. Es la misma cuenta que FIA: la sesión se comparte por usuario, no por app. */
+/** Pantalla de entrada. Es la misma cuenta que RHA: la sesión se comparte por usuario, no por app. */
 export function Ingreso() {
   const [email, setEmail] = useState("");
   const [clave, setClave] = useState("");
@@ -31,7 +31,7 @@ export function Ingreso() {
         <Logo className="size-14" />
         <h1 className="mt-5 text-[34px] leading-[1.1] font-bold tracking-[-0.025em]">SIVA</h1>
         <p className="mt-2 text-[17px] leading-snug text-tinta-suave">
-          Tu día de un vistazo: plata, entrenamiento y lo que venga. Entrá con la misma cuenta de FIA.
+          Tu día de un vistazo: hábitos, agenda y lo que venga. Entrá con la misma cuenta de RHA.
         </p>
 
         <form onSubmit={entrar} className="mt-7 grid gap-3">
